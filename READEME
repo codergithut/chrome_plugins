@@ -1,0 +1,17 @@
+
+virtualenv venv
+
+. venv/bin/activate
+
+
+http://docs.jinkan.org/docs/flask/quickstart.html
+
+pip install flask_restful
+
+pip install click
+
+pip install flask
+
+pip install PyJWT
+
+pip install flask_restful
