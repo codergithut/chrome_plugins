@@ -4,6 +4,8 @@ from flask import Flask
 from flask_cors import CORS
 from flask_restful import reqparse, abort, Api, Resource
 
+import db
+
 
 class FlaskFactory :
     def __init__(self, test_config = None):

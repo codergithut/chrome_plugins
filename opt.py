@@ -11,7 +11,7 @@ secret = b'\x7d\xef\x87\xd5\xf8\xbb\xff\xfc\x80\x91\x06\x91\xfd\xfc\xed\x69'
 
 algorithm = 'HS256'
 
-jwt = jwt_util.jwt_util(secret, algorithm)
+jwt = jwt_util(secret, algorithm)
 
 def basic_authentication():
     token = request.headers.get("Authorization")
@@ -49,7 +49,7 @@ secret = b'\x7d\xef\x87\xd5\xf8\xbb\xff\xfc\x80\x91\x06\x91\xfd\xfc\xed\x69'
 
 algorithm = 'HS256'
 
-jwt = jwt_util.jwt_util(secret, algorithm)
+jwt = jwt_util(secret, algorithm)
 
 result = {"code": 0}
 

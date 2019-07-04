@@ -21,7 +21,7 @@ algorithm = 'HS256'
 
 result = {"code": 0}
 
-jwt = jwt_util.jwt_util(secret, algorithm)
+jwt = jwt_util(secret, algorithm)
 
 
 class AuthVerifyUserInfo(Resource):
@@ -68,7 +68,7 @@ class AuthRegister(Resource):
         db.execute(
             'INSERT INTO user (name, password)'
             ' VALUES (?, ?)',
-            (args['name'], args['password'])
+            (args['username'], args['password'])
         )
         db.commit()
         result['message'] = 'success'

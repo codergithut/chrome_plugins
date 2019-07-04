@@ -15,3 +15,8 @@ pip install flask
 pip install PyJWT
 
 pip install flask_restful
+
+pip install flask_cors
+
+
+python api.py
