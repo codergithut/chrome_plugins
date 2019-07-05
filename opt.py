@@ -13,9 +13,20 @@ algorithm = 'HS256'
 
 jwt = jwt_util(secret, algorithm)
 
+parser = reqparse.RequestParser()
+parser.add_argument('url')
+parser.add_argument('token')
+parser.add_argument('user_id')
+
+args=[]
+
+user_id=0
+
 def basic_authentication():
+    args = parser.parse_args()
     token = request.headers.get("Authorization")
     if jwt.verifToken(token):
+        user_id = jwt.verifToken(token)['id']
         return True
     return False
     pass
@@ -38,11 +49,6 @@ def authenticate(func):
 
 class Resource(flask_restful.Resource):
     method_decorators = [authenticate]
-
-parser = reqparse.RequestParser()
-parser.add_argument('url')
-parser.add_argument('token')
-parser.add_argument('user_id')
 
 secret = b'\x7d\xef\x87\xd5\xf8\xbb\xff\xfc\x80\x91\x06\x91\xfd\xfc\xed\x69'
 
@@ -67,7 +73,7 @@ class OptSaveUrl(Resource):
         db.execute(
             'INSERT INTO url_record (url, user_id)'
             ' VALUES (?, ?)',
-            (args['url'], args['user_id'])
+            (args['url'], user_id)
         )
         db.commit()
         result['message'] = 'success'
