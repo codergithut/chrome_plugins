@@ -17,9 +17,10 @@ api.add_resource(auth.AuthRegister, "/auth/register")
 api.add_resource(auth.AuthUnRegister, "/auth/unregister")
 api.add_resource(auth.AuthVerifyUserInfo, "/auth/verifyUserInfo")
 api.add_resource(opt.OptSaveUrl, "/opt/save")
+api.add_resource(opt.OptSearchUrl, "/opt/search")
 api.add_resource(opt.OptDeleteUrl, "/opt/delete")
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host= '0.0.0.0',debug=True)
     app.cli.get_command("init-db")

@@ -15,7 +15,6 @@ jwt = jwt_util(secret, algorithm)
 
 def basic_authentication():
     token = request.headers.get("Authorization")
-    args = parser.parse_args()
     if jwt.verifToken(token):
         return True
     return False
@@ -103,6 +102,22 @@ class OptDeleteUrl(Resource):
         pass
         result['message'] = 'fail'
         result['code'] = 2
+        return result, 201
+    pass
+
+class OptSearchUrl(Resource):
+    def post(self):
+        args = parser.parse_args()
+        db = get_db()
+        urlRecords = urlRecords = db.execute('select url from url_record WHERE user_id = ?', (args['user_id'],))
+        db.commit()
+        record_urls = []
+        for record in urlRecords:
+            print(tuple(record)[0])
+            record_urls.append(tuple(record)[0])
+        result['message'] = 'success'
+        result['code'] = 0
+        result['data'] = record_urls
         return result, 201
     pass
 
