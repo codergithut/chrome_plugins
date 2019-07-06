@@ -6,7 +6,7 @@ from flask_restful import reqparse, abort, Api, Resource
 
 import db
 
-
+## 初始化app各个参数
 class FlaskFactory :
     def __init__(self, test_config = None):
         app = Flask(__name__)

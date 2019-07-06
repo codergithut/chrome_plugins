@@ -8,20 +8,29 @@ from jwt import ExpiredSignatureError
 from db import get_db
 from jwt_util import jwt_util
 
+## jwt 验证密钥
 secret = b'\x7d\xef\x87\xd5\xf8\xbb\xff\xfc\x80\x91\x06\x91\xfd\xfc\xed\x69'
 
+## token签名方法
 algorithm = 'HS256'
 
+## jwt工具
 jwt = jwt_util(secret, algorithm)
 
+## result 结果
+result = {"code": 0}
+
+## 表单获取数据
 parser = reqparse.RequestParser()
 parser.add_argument('url')
 parser.add_argument('token')
 
 args=[]
 
+## 用户id
 user_id=0
 
+## 用户token验证
 def basic_authentication():
     args = parser.parse_args()
     token = request.headers.get("Authorization")
@@ -34,7 +43,7 @@ def basic_authentication():
         return 2
     pass
 
-
+## 用户验证切面
 def authenticate(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -51,22 +60,13 @@ def authenticate(func):
 
         if acct == 2:
             flask_restful.abort(402)
-
     return wrapper
-
 
 class Resource(flask_restful.Resource):
     method_decorators = [authenticate]
+    pass
 
-secret = b'\x7d\xef\x87\xd5\xf8\xbb\xff\xfc\x80\x91\x06\x91\xfd\xfc\xed\x69'
-
-algorithm = 'HS256'
-
-jwt = jwt_util(secret, algorithm)
-
-result = {"code": 0}
-
-
+## 收藏url
 class OptSaveUrl(Resource):
     def post(self):
         args = parser.parse_args()
@@ -89,6 +89,7 @@ class OptSaveUrl(Resource):
         return result, 201
     pass
 
+## 验证用户是否有url
 def checkUserRecordData():
     args = parser.parse_args()
     db = get_db()
@@ -103,6 +104,7 @@ def checkUserRecordData():
         return False
     pass
 
+## 删除用户收藏的url
 class OptDeleteUrl(Resource):
     def post(self):
         args = parser.parse_args()
@@ -119,6 +121,7 @@ class OptDeleteUrl(Resource):
         return result, 201
     pass
 
+## 查询用户已收藏的url
 class OptSearchUrl(Resource):
     def post(self):
         args = parser.parse_args()

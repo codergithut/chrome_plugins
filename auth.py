@@ -1,29 +1,28 @@
-from functools import wraps
 
 from flask_restful import reqparse, abort, Resource
 
 from db import get_db
 from jwt_util import jwt_util
 
-
-def basic_authentication():
-    return False
-    pass
-
+## 获取用户表单数据
 parser = reqparse.RequestParser()
 parser.add_argument('username')
 parser.add_argument('password')
-parser.add_argument('user_id')
 
+## jwt密钥
 secret = b'\x7d\xef\x87\xd5\xf8\xbb\xff\xfc\x80\x91\x06\x91\xfd\xfc\xed\x69'
 
+## 数字签名类型
 algorithm = 'HS256'
 
+## 返回码
 result = {"code": 0}
 
+## jwt用户工具
 jwt = jwt_util(secret, algorithm)
 
 
+## 验证用户信息并返回token数据
 class AuthVerifyUserInfo(Resource):
     def post(self):
         args = parser.parse_args()
@@ -49,6 +48,7 @@ class AuthVerifyUserInfo(Resource):
         return result, 201
     pass
 
+## 用户注册
 class AuthRegister(Resource):
     def post(self):
         args = parser.parse_args()
@@ -76,17 +76,19 @@ class AuthRegister(Resource):
         return result, 201
     pass
 
+## 用户注销（暂时页面不提供）
 class AuthUnRegister(Resource):
+    ##todo 需要token验证，说实话就是漏洞
     def post(self):
         args = parser.parse_args()
         db = get_db()
         users = db.execute(
             'SELECT user_id '
             ' FROM user'
-            ' WHERE user_id = ?', (args['user_id'],)
+            ' WHERE name = ? and password = ?', (args['name'], args['password'])
         ).fetchall()
         if users.__len__()>0:
-            db.execute('DELETE FROM user WHERE user_id = ?', (args['user_id'],))
+            db.execute('DELETE FROM user WHERE name = ? and password', (args['name'], args['password']))
             db.commit()
             result['message'] = 'success'
             result['code']=0
@@ -96,4 +98,3 @@ class AuthUnRegister(Resource):
         result['code']=2
         return result, 201
     pass
-
