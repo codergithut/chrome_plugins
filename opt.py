@@ -3,6 +3,7 @@ from functools import wraps
 import flask_restful
 from flask import request
 from flask_restful import reqparse
+from jwt import ExpiredSignatureError
 
 from db import get_db
 from jwt_util import jwt_util
@@ -16,7 +17,6 @@ jwt = jwt_util(secret, algorithm)
 parser = reqparse.RequestParser()
 parser.add_argument('url')
 parser.add_argument('token')
-parser.add_argument('user_id')
 
 args=[]
 
@@ -25,10 +25,13 @@ user_id=0
 def basic_authentication():
     args = parser.parse_args()
     token = request.headers.get("Authorization")
-    if jwt.verifToken(token):
-        user_id = jwt.verifToken(token)['id']
-        return True
-    return False
+    try:
+        if jwt.verifToken(token):
+            user_id = jwt.verifToken(token)['id']
+            return 0
+        return 1
+    except ExpiredSignatureError as e:
+        return 2
     pass
 
 
@@ -40,10 +43,15 @@ def authenticate(func):
 
         acct = basic_authentication()  # custom account lookup function
 
-        if acct:
+        if acct == 0:
             return func(*args, **kwargs)
 
-        flask_restful.abort(401)
+        if acct == 1:
+            flask_restful.abort(401)
+
+        if acct == 2:
+            flask_restful.abort(402)
+
     return wrapper
 
 
@@ -87,7 +95,7 @@ def checkUserRecordData():
     users = db.execute(
         'SELECT user_id '
         ' FROM url_record'
-        ' WHERE user_id = ? and url = ?', (args['user_id'],args['url'])
+        ' WHERE user_id = ? and url = ?', (user_id,args['url'])
     ).fetchall()
     if users.__len__()>0:
         return True
@@ -100,7 +108,7 @@ class OptDeleteUrl(Resource):
         args = parser.parse_args()
         db = get_db()
         if checkUserRecordData():
-            db.execute('DELETE FROM url_record WHERE user_id = ? and url = ?', (args['user_id'], args['url']))
+            db.execute('DELETE FROM url_record WHERE user_id = ? and url = ?', (user_id, args['url']))
             db.commit()
             result['message'] = 'success'
             result['code'] = 0
@@ -115,7 +123,7 @@ class OptSearchUrl(Resource):
     def post(self):
         args = parser.parse_args()
         db = get_db()
-        urlRecords = urlRecords = db.execute('select url from url_record WHERE user_id = ?', (args['user_id'],))
+        urlRecords = urlRecords = db.execute('select url from url_record WHERE user_id = ?', (user_id,))
         db.commit()
         record_urls = []
         for record in urlRecords:
