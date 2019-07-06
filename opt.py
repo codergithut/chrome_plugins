@@ -77,7 +77,6 @@ class Resource(flask_restful.Resource):
 class OptSaveUrl(Resource):
     def post(self):
         args = parser.parse_args()
-        db = get_db()
 
         url = args['url']
         status = check_url(url)
@@ -90,12 +89,14 @@ class OptSaveUrl(Resource):
             return result, 500
         pass
 
+        db = get_db()
         db.execute(
             'INSERT INTO url_record (url, user_id, status, remark, tag)'
             ' VALUES (?, ?, ?, ?, ?)',
             (url, user_id, status, remark, tag)
         )
         db.commit()
+
         result['message'] = 'success'
         result['code']=0
         return result, 201

@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 import click
@@ -14,6 +15,15 @@ def get_db():
         g.db.row_factory = sqlite3.Row
 
     return g.db
+
+def get_db_no_app():
+    DATABASE = os.path.join(os.path.split(os.path.realpath(__file__))[0], 'instance/chrome.sqlite')
+    db = sqlite3.connect(
+        DATABASE,
+        detect_types=sqlite3.PARSE_DECLTYPES
+    )
+    db.row_factory = sqlite3.Row
+    return db
 
 ## 关闭数据源
 def close_db(e=None):

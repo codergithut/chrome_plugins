@@ -1,6 +1,12 @@
 import urllib.request
 import time
 
+from urllib.parse import urlparse
+
+url = 'http://www.chenxm.cc/post/719.html'
+res = urlparse(url)
+print(res)
+
 opener = urllib.request.build_opener()
 opener.addheaders = [('User-agent', 'Mozilla/49.0.2')]
 # 这个是你放网址的文件名，改过来就可以了
