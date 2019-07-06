@@ -85,10 +85,10 @@ class AuthUnRegister(Resource):
         users = db.execute(
             'SELECT user_id '
             ' FROM user'
-            ' WHERE name = ? and password = ?', (args['name'], args['password'])
+            ' WHERE name = ? and password = ?', (args['username'], args['password'])
         ).fetchall()
         if users.__len__()>0:
-            db.execute('DELETE FROM user WHERE name = ? and password', (args['name'], args['password']))
+            db.execute('DELETE FROM user WHERE name = ? and password = ?', (args['username'], args['password']))
             db.commit()
             result['message'] = 'success'
             result['code']=0

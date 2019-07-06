@@ -3,6 +3,7 @@ from functools import wraps
 import auth
 import flask_factory
 import opt
+from db import init_app
 
 t = flask_factory.FlaskFactory()
 
@@ -14,6 +15,8 @@ api = t.api
 ##
 
 ## 服务路由服务
+
+init_app(app)
 
 #用户注册
 api.add_resource(auth.AuthRegister, "/auth/register")

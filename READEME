@@ -17,6 +17,7 @@ pip install flask_restful
 
 pip install flask_cors
 
+
 启动脚本
 python api.py
 
@@ -29,6 +30,14 @@ docker build  -t chrome_plugin .
 
 3 docker服务启动
 docker run -p 5000:5000 chrome_plugin
+
+
+数据库配置
+启动项目生成数据库文件 地址为instanc/chrome.sqlite
+为数据库执行schema.sql
+
+执行postman测试
+文件为 chrome_plugin.postman_collection.json
 
 --version 1.0
 
@@ -53,5 +62,7 @@ docker run -p 5000:5000 chrome_plugin
 
 4 定时扫描发现用户自定义标签，为共同的用户自定义标签升级为系统标签
 
-google前端插件git项目地址：https://github.com/1016482011/chrome-plugin-bookmarks.git
+以上为后端项目介绍
+
+插件前端项目地址 https://github.com/1016482011/chrome-plugin-bookmarks.git
 

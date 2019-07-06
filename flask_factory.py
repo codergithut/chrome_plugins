@@ -15,7 +15,7 @@ class FlaskFactory :
         CORS(app, supports_credentials=True)
         app.config.from_mapping(
             SECRET_KEY='dev',
-            DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+            DATABASE=os.path.join(app.instance_path, 'chrome.sqlite'),
         )
 
         if test_config is None:
