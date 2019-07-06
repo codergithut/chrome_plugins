@@ -17,3 +17,4 @@ class jwt_util:
     ## 验证token
     def verifToken(self, token):
         return jwt.decode(token, self.secret, algorithm=self.algorithm)
+    pass

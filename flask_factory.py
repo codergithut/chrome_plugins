@@ -41,3 +41,5 @@ class FlaskFactory :
 
         self.app = app
         self.api = Api(self.app)
+
+        pass

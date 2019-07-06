@@ -137,4 +137,3 @@ class OptSearchUrl(Resource):
         result['data'] = record_urls
         return result, 201
     pass
-
