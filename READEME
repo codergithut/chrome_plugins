@@ -6,6 +6,7 @@ virtualenv venv
 
 http://docs.jinkan.org/docs/flask/quickstart.html
 
+物理机需安装 如下python工具包
 pip install flask_restful
 
 pip install click
@@ -18,5 +19,16 @@ pip install flask_restful
 
 pip install flask_cors
 
-
+启动脚本
 python api.py
+
+docker容器化
+
+1 linux安装docker服务
+
+2 docker镜像构建
+docker build  -t chrome_plugin .
+
+3 docker服务启动
+docker run -p 5000:5000 chrome_plugin
+
