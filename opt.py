@@ -4,9 +4,14 @@ import flask_restful
 from flask import request
 from flask_restful import reqparse
 from jwt import ExpiredSignatureError
+import urllib.request
+import time
 
 from db import get_db
 from jwt_util import jwt_util
+
+opener = urllib.request.build_opener()
+opener.addheaders = [('User-agent', 'Mozilla/49.0.2')]
 
 ## jwt 验证密钥
 secret = b'\x7d\xef\x87\xd5\xf8\xbb\xff\xfc\x80\x91\x06\x91\xfd\xfc\xed\x69'
@@ -24,6 +29,8 @@ result = {"code": 0}
 parser = reqparse.RequestParser()
 parser.add_argument('url')
 parser.add_argument('token')
+parser.add_argument('remark')
+
 
 args=[]
 
@@ -72,6 +79,11 @@ class OptSaveUrl(Resource):
         args = parser.parse_args()
         db = get_db()
 
+        url = args['url']
+        status = check_url(url)
+        remark = args['remark']
+        tag = 'default'
+
         if checkUserRecordData():
             result['message'] = 'fail'
             result['code'] = 1
@@ -79,15 +91,30 @@ class OptSaveUrl(Resource):
         pass
 
         db.execute(
-            'INSERT INTO url_record (url, user_id)'
-            ' VALUES (?, ?)',
-            (args['url'], user_id)
+            'INSERT INTO url_record (url, user_id, status, remark, tag)'
+            ' VALUES (?, ?, ?, ?, ?)',
+            (url, user_id, status, remark, tag)
         )
         db.commit()
         result['message'] = 'success'
         result['code']=0
         return result, 201
     pass
+
+def check_url(tempUrl):
+    try:
+        opener.open(tempUrl)
+        return 0
+    except urllib.error.HTTPError:
+        time.sleep(2)
+        return 1
+    except urllib.error.URLError:
+        time.sleep(2)
+        return 2
+    except ValueError:
+        return 3
+    time.sleep(0.1)
+
 
 ## 验证用户是否有url
 def checkUserRecordData():
