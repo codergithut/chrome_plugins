@@ -1,8 +1,6 @@
-
 virtualenv venv
 
 . venv/bin/activate
-
 
 http://docs.jinkan.org/docs/flask/quickstart.html
 
@@ -31,4 +29,29 @@ docker build  -t chrome_plugin .
 
 3 docker服务启动
 docker run -p 5000:5000 chrome_plugin
+
+--version 1.0
+
+版本功能描述
+
+1 实现基础用户验证使用了PyJWT模块验证
+
+2 实现用户注册接口
+
+3 实现用户登录接口
+
+4 实现了用户收藏本地页面接口服务和用户收藏页面获取接口
+
+
+--version 2.0 版本规划
+
+1 系统提供标记功能 用户自定义标记，系统推送标记
+
+2 用户按标记查询已收藏页面
+
+3 推送可能会感兴趣的页面给用户（逻辑为 如果有3个用户，用docker分别标记收藏的页面，A用户为1，2 B用户 3，4 C用户 5，6 那么可以向A用户推荐3，4，5，6 以此类推
+
+4 定时扫描发现用户自定义标签，为共同的用户自定义标签升级为系统标签
+
+google前端插件git项目地址：https://github.com/1016482011/chrome-plugin-bookmarks.git
 
