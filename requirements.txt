@@ -3,3 +3,6 @@ flask
 PyJWT
 flask_restful
 flask_cors
+urllib
+time
+urlparse
