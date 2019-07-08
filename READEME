@@ -43,13 +43,13 @@ docker run -p 5000:5000 chrome_plugin
 
 版本功能描述
 
-1 实现基础用户验证使用了PyJWT模块验证
+1 实现基础用户验证使用了PyJWT模块验证 done
 
-2 实现用户注册接口
+2 实现用户注册接口 done
 
-3 实现用户登录接口
+3 实现用户登录接口 done
 
-4 实现了用户收藏本地页面接口服务和用户收藏页面获取接口
+4 实现了用户收藏本地页面接口服务和用户收藏页面获取接口 done
 
 
 --version 2.0 版本规划
@@ -62,7 +62,7 @@ docker run -p 5000:5000 chrome_plugin
 
 4 定时扫描发现用户自定义标签，为共同的用户自定义标签升级为系统标签
 
-5 添加批量上传代码 export export_url.py @done
+5 添加批量上传代码 export export_url.py done
 
 以上为后端项目介绍
 
