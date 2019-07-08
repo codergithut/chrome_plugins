@@ -84,22 +84,28 @@ class OptSaveUrl(Resource):
         tag = 'default'
 
         if checkUserRecordData():
-            result['message'] = 'fail'
-            result['code'] = 1
-            return result, 500
+            db = get_db()
+            db.execute(
+                'update url_record set remark = ?, tag = ?, status = ? where user_id = ? and url = ?',
+                (remark, tag, status, user_id , url)
+            )
+            db.commit()
+            result['message'] = 'update'
+            result['code'] = 0
+            return result, 201
+        else:
+            db = get_db()
+            db.execute(
+                'INSERT INTO url_record (url, user_id, status, remark, tag)'
+                ' VALUES (?, ?, ?, ?, ?)',
+                (url, user_id, status, remark, tag)
+            )
+            db.commit()
+
+            result['message'] = 'success'
+            result['code'] = 0
+            return result, 201
         pass
-
-        db = get_db()
-        db.execute(
-            'INSERT INTO url_record (url, user_id, status, remark, tag)'
-            ' VALUES (?, ?, ?, ?, ?)',
-            (url, user_id, status, remark, tag)
-        )
-        db.commit()
-
-        result['message'] = 'success'
-        result['code']=0
-        return result, 201
     pass
 
 def check_url(tempUrl):
