@@ -62,7 +62,8 @@ docker run -p 5000:5000 chrome_plugin
 
 4 定时扫描发现用户自定义标签，为共同的用户自定义标签升级为系统标签
 
+5 添加批量上传代码 export export_url.py @done
+
 以上为后端项目介绍
 
 插件前端项目地址 https://github.com/1016482011/chrome-plugin-bookmarks.git
-

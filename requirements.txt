@@ -6,3 +6,4 @@ flask_cors
 urllib
 time
 urlparse
+validators
