@@ -1,11 +1,11 @@
 from functools import wraps
 
 import flask_restful
+import validators
 from flask import request
 from flask_restful import reqparse
 from jwt import ExpiredSignatureError
 import urllib.request
-import time
 
 from db import get_db
 from jwt_util import jwt_util
@@ -77,7 +77,6 @@ class Resource(flask_restful.Resource):
 class OptSaveUrl(Resource):
     def post(self):
         args = parser.parse_args()
-
         url = args['url']
         status = check_url(url)
         remark = args['remark']
@@ -109,18 +108,11 @@ class OptSaveUrl(Resource):
     pass
 
 def check_url(tempUrl):
-    try:
-        opener.open(tempUrl)
+    if validators.url(tempUrl):
         return 0
-    except urllib.error.HTTPError:
-        time.sleep(2)
+    else:
         return 1
-    except urllib.error.URLError:
-        time.sleep(2)
-        return 2
-    except ValueError:
-        return 3
-    time.sleep(0.1)
+    return 0
 
 
 ## 验证用户是否有url
