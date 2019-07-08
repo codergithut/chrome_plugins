@@ -1,7 +1,6 @@
 from functools import wraps
 
 import flask_restful
-import validators
 from flask import request
 from flask_restful import reqparse
 from jwt import ExpiredSignatureError
@@ -108,7 +107,7 @@ class OptSaveUrl(Resource):
     pass
 
 def check_url(tempUrl):
-    if validators.url(tempUrl):
+    if tempUrl != None:
         return 0
     else:
         return 1

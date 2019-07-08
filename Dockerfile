@@ -1,4 +1,4 @@
-FROM continuumio/anaconda3
+FROM python:3.7.3-alpine3.10
 
 
 # Set the working directory to /app
