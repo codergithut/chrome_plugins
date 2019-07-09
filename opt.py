@@ -88,6 +88,7 @@ class OptSaveUrl(Resource):
                 (remark, tag, status, user_id , url)
             )
             db.commit()
+            db.commit()
             result['message'] = 'update'
             result['code'] = 0
             return result, 201
@@ -99,7 +100,7 @@ class OptSaveUrl(Resource):
                 (url, user_id, status, remark, tag)
             )
             db.commit()
-
+            result.clear()
             result['message'] = 'success'
             result['code'] = 0
             return result, 201
@@ -137,10 +138,12 @@ class OptDeleteUrl(Resource):
         if checkUserRecordData():
             db.execute('DELETE FROM url_record WHERE user_id = ? and url = ?', (user_id, args['url']))
             db.commit()
+            db.commit()
             result['message'] = 'success'
             result['code'] = 0
             return result, 201
         pass
+        result.clear()
         result['message'] = 'fail'
         result['code'] = 2
         return result, 201
@@ -157,6 +160,8 @@ class OptSearchUrl(Resource):
         for record in urlRecords:
             print(tuple(record)[0])
             record_urls.append(tuple(record)[0])
+            pass
+        result.clear()
         result['message'] = 'success'
         result['code'] = 0
         result['data'] = record_urls

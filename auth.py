@@ -38,10 +38,12 @@ class AuthVerifyUserInfo(Resource):
             for item in posts:
                 userId = tuple(item)[0]
                 pass
+            result.clear()
             result['token'] = jwt.createToken(userId, 1800)
             result['message'] = 'success'
             result['code'] = 0
         else:
+            result.clear()
             result['message'] = 'can not find userinfo'
             result['code'] = 1
             pass
@@ -60,6 +62,7 @@ class AuthRegister(Resource):
         ).fetchall()
 
         if users.__len__()>0:
+            result.clear()
             result['message'] = 'fail'
             result['code'] = 1
             return result, 500
@@ -71,6 +74,7 @@ class AuthRegister(Resource):
             (args['username'], args['password'])
         )
         db.commit()
+        result.clear()
         result['message'] = 'success'
         result['code']=0
         return result, 201
@@ -90,10 +94,12 @@ class AuthUnRegister(Resource):
         if users.__len__()>0:
             db.execute('DELETE FROM user WHERE name = ? and password = ?', (args['username'], args['password']))
             db.commit()
+            result.clear()
             result['message'] = 'success'
             result['code']=0
             return result, 201
         pass
+        result.clear()
         result['message'] = 'fail'
         result['code']=2
         return result, 201
