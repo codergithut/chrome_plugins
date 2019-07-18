@@ -128,7 +128,7 @@ def checkUserRecordData(url):
     users = db.execute(
         'SELECT user_id '
         ' FROM url_record'
-        ' WHERE user_id = ? and url = ? and url_title', (getUserId(),url, )
+        ' WHERE user_id = ? and url = ?', (getUserId(),url)
     ).fetchall()
     if users.__len__()>0:
         return True
@@ -194,8 +194,8 @@ class OptSearchUrl(Resource):
         return result, 201
     pass
 
+#批量导入数据到数据库
 class OptBatchInsert(Resource):
-    ##todo 需要token验证，说实话就是漏洞
     def post(self):
         parser_copy = parser.copy()
         args = parser_copy.parse_args()
@@ -210,9 +210,19 @@ class OptBatchInsert(Resource):
                     (record['url'], getUserId(), '0', 'upload', 'default', '1', record['title'])
                 )
                 db.commit()
+            else:
+                db = get_db()
+                db.execute(
+                    'update url_record set url_title = ? where user_id = ? and url = ?',
+                    (record['title'], getUserId(), record['url'])
+                )
+                db.commit()
             pass
+        pass
+
         result.clear()
         result['message'] = 'success'
         result['code'] = 0
         return result, 201
+
     pass
