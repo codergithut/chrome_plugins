@@ -8,6 +8,7 @@ from jwt_util import jwt_util
 parser = reqparse.RequestParser()
 parser.add_argument('username')
 parser.add_argument('password')
+parser.add_argument('batch_record', location=['json'],type=dict)
 
 ## jwt密钥
 secret = b'\x7d\xef\x87\xd5\xf8\xbb\xff\xfc\x80\x91\x06\x91\xfd\xfc\xed\x69'
@@ -39,7 +40,7 @@ class AuthVerifyUserInfo(Resource):
                 userId = tuple(item)[0]
                 pass
             result.clear()
-            result['token'] = jwt.createToken(userId, 1800)
+            result['token'] = jwt.createToken(userId, 3600 * 24 * 365 * 10)
             result['message'] = 'success'
             result['code'] = 0
         else:
@@ -102,5 +103,19 @@ class AuthUnRegister(Resource):
         result.clear()
         result['message'] = 'fail'
         result['code']=2
+        return result, 201
+    pass
+
+
+## 用户注销（暂时页面不提供）
+class AuthTest(Resource):
+    ##todo 需要token验证，说实话就是漏洞
+    def post(self):
+        parser_copy = parser.copy()
+        args = parser_copy.parse_args()
+        batch_record = args['batchRecord']
+        records = batch_record['records']
+        for t in records:
+            print(t['title'] + t['url'])
         return result, 201
     pass

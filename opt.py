@@ -29,8 +29,9 @@ parser = reqparse.RequestParser()
 parser.add_argument('url')
 parser.add_argument('token')
 parser.add_argument('remark')
-
-
+parser.add_argument('recordId')
+parser.add_argument('title')
+parser.add_argument('batchRecord', location=['json'],type=dict)
 args=[]
 
 ## 用户id
@@ -42,12 +43,16 @@ def basic_authentication():
     token = request.headers.get("Authorization")
     try:
         if jwt.verifToken(token):
-            user_id = jwt.verifToken(token)['id']
             return 0
         return 1
     except ExpiredSignatureError as e:
         return 2
     pass
+
+def getUserId():
+    token = request.headers.get("Authorization")
+    user_id = jwt.verifToken(token)['id']
+    return user_id
 
 ## 用户验证切面
 def authenticate(func):
@@ -65,7 +70,7 @@ def authenticate(func):
             flask_restful.abort(401)
 
         if acct == 2:
-            flask_restful.abort(402)
+            flask_restful.abort(403)
     return wrapper
 
 class Resource(flask_restful.Resource):
@@ -79,13 +84,14 @@ class OptSaveUrl(Resource):
         url = args['url']
         status = check_url(url)
         remark = args['remark']
+        title = args['title']
         tag = 'default'
 
-        if checkUserRecordData():
+        if checkUserRecordData(url):
             db = get_db()
             db.execute(
                 'update url_record set remark = ?, tag = ?, status = ? where user_id = ? and url = ?',
-                (remark, tag, status, user_id , url)
+                (remark, tag, status, getUserId() , url)
             )
             db.commit()
             db.commit()
@@ -95,9 +101,9 @@ class OptSaveUrl(Resource):
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO url_record (url, user_id, status, remark, tag)'
-                ' VALUES (?, ?, ?, ?, ?)',
-                (url, user_id, status, remark, tag)
+                'INSERT INTO url_record (url, user_id, status, remark, tag, type, url_title)'
+                ' VALUES (?, ?, ?, ?, ?, ?, ?)',
+                (url, getUserId(), status, remark, tag, '2', title)
             )
             db.commit()
             result.clear()
@@ -116,15 +122,30 @@ def check_url(tempUrl):
 
 
 ## 验证用户是否有url
-def checkUserRecordData():
+def checkUserRecordData(url):
     args = parser.parse_args()
     db = get_db()
     users = db.execute(
         'SELECT user_id '
         ' FROM url_record'
-        ' WHERE user_id = ? and url = ?', (user_id,args['url'])
+        ' WHERE user_id = ? and url = ? and url_title', (getUserId(),url, )
     ).fetchall()
     if users.__len__()>0:
+        return True
+    else:
+        return False
+    pass
+
+
+def checkUserRecordExist():
+    args = parser.parse_args()
+    db = get_db()
+    records = db.execute(
+        'SELECT user_id '
+        ' FROM url_record'
+        ' WHERE user_id = ? and record_id = ?', (getUserId(), args['recordId'])
+    ).fetchall()
+    if records.__len__() > 0:
         return True
     else:
         return False
@@ -135,8 +156,8 @@ class OptDeleteUrl(Resource):
     def post(self):
         args = parser.parse_args()
         db = get_db()
-        if checkUserRecordData():
-            db.execute('DELETE FROM url_record WHERE user_id = ? and url = ?', (user_id, args['url']))
+        if checkUserRecordExist():
+            db.execute('DELETE FROM url_record WHERE user_id = ? and record_id = ?', (getUserId(), args['recordId']))
             db.commit()
             db.commit()
             result['message'] = 'success'
@@ -154,16 +175,44 @@ class OptSearchUrl(Resource):
     def post(self):
         args = parser.parse_args()
         db = get_db()
-        urlRecords = urlRecords = db.execute('select url from url_record WHERE user_id = ?', (user_id,))
+        urlRecords = urlRecords = db\
+            .execute('select url, remark, record_id, url_title from url_record WHERE user_id = ?', (getUserId(),))
         db.commit()
         record_urls = []
         for record in urlRecords:
-            print(tuple(record)[0])
-            record_urls.append(tuple(record)[0])
+            detail = {}
+            detail['url'] = tuple(record)[0]
+            detail['remark'] = tuple(record)[1]
+            detail['recordId'] = tuple(record)[2]
+            detail['title'] = tuple(record)[3]
+            record_urls.append(detail)
             pass
         result.clear()
         result['message'] = 'success'
         result['code'] = 0
         result['data'] = record_urls
+        return result, 201
+    pass
+
+class OptBatchInsert(Resource):
+    ##todo 需要token验证，说实话就是漏洞
+    def post(self):
+        parser_copy = parser.copy()
+        args = parser_copy.parse_args()
+        batch_record = args['batchRecord']
+        records = batch_record['records']
+        for record in records:
+            if not checkUserRecordData(record['url']):
+                db = get_db()
+                db.execute(
+                    'INSERT INTO url_record (url, user_id, status, remark, tag, type, url_title)'
+                    ' VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    (record['url'], getUserId(), '0', 'upload', 'default', '1', record['title'])
+                )
+                db.commit()
+            pass
+        result.clear()
+        result['message'] = 'success'
+        result['code'] = 0
         return result, 201
     pass

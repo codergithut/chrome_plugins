@@ -36,6 +36,9 @@ api.add_resource(opt.OptSearchUrl, "/opt/search")
 #删除用户收藏的网页
 api.add_resource(opt.OptDeleteUrl, "/opt/delete")
 
+#服务测试
+api.add_resource(opt.OptBatchInsert, "/opt/batch")
+
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0',debug=True)
