@@ -32,6 +32,7 @@ parser.add_argument('remark')
 parser.add_argument('recordId')
 parser.add_argument('title')
 parser.add_argument('batchRecord', location=['json'],type=dict)
+parser.add_argument('batchDelete', location=['json'],type=dict)
 args=[]
 
 ## 用户id
@@ -91,9 +92,9 @@ class OptSaveUrl(Resource):
             db = get_db()
             db.execute(
                 'update url_record set remark = ?, tag = ?, status = ? where user_id = ? and url = ?',
-                (remark, tag, status, getUserId() , url)
+                (remark, tag, status, getUserId(), url)
             )
-            db.commit()
+
             db.commit()
             result['message'] = 'update'
             result['code'] = 0
@@ -106,6 +107,7 @@ class OptSaveUrl(Resource):
                 (url, getUserId(), status, remark, tag, '2', title)
             )
             db.commit()
+
             result.clear()
             result['message'] = 'success'
             result['code'] = 0
@@ -137,13 +139,13 @@ def checkUserRecordData(url):
     pass
 
 
-def checkUserRecordExist():
+def checkUserRecordExist(recordId):
     args = parser.parse_args()
     db = get_db()
     records = db.execute(
         'SELECT user_id '
         ' FROM url_record'
-        ' WHERE user_id = ? and record_id = ?', (getUserId(), args['recordId'])
+        ' WHERE user_id = ? and record_id = ?', (getUserId(), recordId)
     ).fetchall()
     if records.__len__() > 0:
         return True
@@ -156,7 +158,7 @@ class OptDeleteUrl(Resource):
     def post(self):
         args = parser.parse_args()
         db = get_db()
-        if checkUserRecordExist():
+        if checkUserRecordExist(args['recordId']):
             db.execute('DELETE FROM url_record WHERE user_id = ? and record_id = ?', (getUserId(), args['recordId']))
             db.commit()
             db.commit()
@@ -176,7 +178,7 @@ class OptSearchUrl(Resource):
         args = parser.parse_args()
         db = get_db()
         urlRecords = urlRecords = db\
-            .execute('select url, remark, record_id, url_title from url_record WHERE user_id = ?', (getUserId(),))
+            .execute('select url, remark, record_id, url_title, type from url_record WHERE user_id = ? and status = 0', (getUserId(),))
         db.commit()
         record_urls = []
         for record in urlRecords:
@@ -185,6 +187,7 @@ class OptSearchUrl(Resource):
             detail['remark'] = tuple(record)[1]
             detail['recordId'] = tuple(record)[2]
             detail['title'] = tuple(record)[3]
+            detail['type'] = tuple(record)[4]
             record_urls.append(detail)
             pass
         result.clear()
@@ -207,14 +210,14 @@ class OptBatchInsert(Resource):
                 db.execute(
                     'INSERT INTO url_record (url, user_id, status, remark, tag, type, url_title)'
                     ' VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    (record['url'], getUserId(), '0', 'upload', 'default', '1', record['title'])
+                    (record['url'], getUserId(), '0', record['remark'], 'default', record['type'], record['title'])
                 )
                 db.commit()
             else:
                 db = get_db()
                 db.execute(
-                    'update url_record set url_title = ? where user_id = ? and url = ?',
-                    (record['title'], getUserId(), record['url'])
+                    'UPDATE url_record set url_title = ?, remark = ?, type = ? where user_id = ? and url = ?',
+                    (record['title'], record['remark'], record['type'], getUserId(), record['url'])
                 )
                 db.commit()
             pass
@@ -224,5 +227,24 @@ class OptBatchInsert(Resource):
         result['message'] = 'success'
         result['code'] = 0
         return result, 201
+    pass
 
+
+class OptBathDeleteUrl(Resource):
+    def post(self):
+        args = parser.parse_args()
+        batch_record = args['batchDelete']
+        records = batch_record['records']
+        db = get_db()
+        for record in records:
+            if checkUserRecordExist(record['recordId']):
+                db.execute('update  url_record set status = 1 WHERE user_id = ? and record_id = ?',
+                           (getUserId(), record['recordId']))
+            pass
+        pass
+        db.commit()
+        result.clear()
+        result['message'] = 'success'
+        result['code'] = 0
+        return result, 201
     pass

@@ -37,7 +37,9 @@ api.add_resource(opt.OptSearchUrl, "/opt/search")
 api.add_resource(opt.OptDeleteUrl, "/opt/delete")
 
 #服务测试
-api.add_resource(opt.OptBatchInsert, "/opt/batch")
+api.add_resource(opt.OptBatchInsert, "/opt/batchInsert")
+
+api.add_resource(opt.OptBathDeleteUrl, "/opt/batchDelete")
 
 
 if __name__ == '__main__':
